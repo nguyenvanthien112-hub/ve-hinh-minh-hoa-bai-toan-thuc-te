@@ -323,6 +323,7 @@ export default function App() {
 
           <div className={railHidden ? 'col-12' : 'col-12 col-xl-8'}>
             <Stage
+              railHidden={railHidden}
               svg={svg}
               tikz={tikz}
               solution={solution}
@@ -339,6 +340,20 @@ export default function App() {
                     svg.slice(0, 6000),
                 )
               }
+              onUpdateSvg={(newSvg) => {
+                setSvg(newSvg);
+                // Also update the latest history item so we don't lose edits
+                setHistory((prev) => {
+                  if (!prev.length) return prev;
+                  const next = [...prev];
+                  next[0] = { ...next[0], svg: newSvg };
+                  try { store.set(STORAGE_KEYS.history, JSON.stringify(next)); } catch {}
+                  return next;
+                });
+              }}
+              onSyncTikz={() => {
+                void run('Dựa vào hình ảnh SVG cập nhật sau đây, hãy viết lại mã TikZ cho chính xác. Trả về đúng định dạng có mốc phân cách nhé.\n\nSVG:\n' + svg);
+              }}
               notify={notify}
             />
           </div>

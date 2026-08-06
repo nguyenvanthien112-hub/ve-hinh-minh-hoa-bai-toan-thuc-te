@@ -674,3 +674,21 @@ pre.code-pane {
   .navbar, .rail-col, .toolbar, .zoombar, .credit-footer { display: none !important; }
   .main-content { margin: 0; padding: 0; border: 0; box-shadow: none; }
 }
+
+.element-panel { 
+  position: absolute; 
+  z-index: 1050; 
+  width: 220px; 
+  background: white; 
+  border-radius: 8px; 
+}
+.editor-overlay rect {
+  pointer-events: none;
+}
+.editor-overlay circle {
+  pointer-events: all;
+  cursor: pointer;
+}
+.editor-overlay circle:hover {
+  fill: #e9ecef;
+}
