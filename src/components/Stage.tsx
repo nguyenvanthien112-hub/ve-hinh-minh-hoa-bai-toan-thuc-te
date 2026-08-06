@@ -483,6 +483,10 @@ export default function Stage(p: Props) {
               <i className="fas fa-copy me-1" />
               Sao chép mã TikZ
             </button>
+            <button className="btn btn-primary btn-sm" onClick={() => { p.onSyncTikz?.(); p.notify('Đang phân tích hình ảnh và cập nhật lại mã TikZ...'); }}>
+              <i className="fas fa-arrows-rotate me-1" />
+              Đồng bộ lại TikZ theo hình vừa chỉnh
+            </button>
             <span className="text-muted" style={{ fontSize: '.78rem' }}>
               Dán vào tài liệu LaTeX có gói <code>tikz</code>.
             </span>
