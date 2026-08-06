@@ -9,7 +9,7 @@ interface Props {
 }
 
 // Master Admin Password (Admin Nguyễn Thiện set)
-const ADMIN_MASTER_PASS = 'thien0988';
+const ADMIN_MASTER_PASS = 'Thien12345@';
 
 export default function AdminKeygenModal({ isOpen, onClose, notify }: Props) {
   const [passwordInput, setPasswordInput] = useState('');
