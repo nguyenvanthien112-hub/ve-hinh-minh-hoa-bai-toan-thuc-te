@@ -1,0 +1,29 @@
+{
+  "name": "math-visualizer",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Minh hoa bai toan Toan - Vat ly bang SVG voi Gemini. Tac gia: Nguyen Thien - Zalo 0988.250.112",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "jspdf": "^2.5.1",
+    "katex": "^0.16.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sweetalert2": "^11.26.25"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.7",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}
