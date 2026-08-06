@@ -8,6 +8,9 @@ import { STORAGE_KEYS, store, storageAvailable } from './lib/storage';
 import { buildSystemPrompt, buildUserPrompt, generate, parseKeys, type ModelChoice } from './lib/gemini';
 import { cleanSvg, splitOutput, stripFence } from './lib/svg';
 import type { GeminiPart, HistoryItem, ImagePayload, StyleId, SubjectId, TabId } from './types';
+import { getLicenseStatus } from './lib/license';
+import LicenseModal from './components/LicenseModal';
+import AdminKeygenModal from './components/AdminKeygenModal';
 
 const EMPTY_TITLE = 'Khung hiển thị hình minh hoạ';
 const EMPTY_TEXT =
@@ -37,6 +40,22 @@ export default function App() {
   const [imgSketch, setImgSketch] = useState<ImagePayload | null>(null);
   const [wantTikz, setWantTikz] = useState(true);
   const [wantSolution, setWantSolution] = useState(true);
+
+  const [isLicenseOpen, setIsLicenseOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [licenseRefresh, setLicenseRefresh] = useState(0);
+
+  // Keyboard shortcut Ctrl + Shift + A for Admin Keygen Tool
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        setIsAdminOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const [svg, setSvg] = useState('');
   const [tikz, setTikz] = useState('');
@@ -115,8 +134,15 @@ export default function App() {
     async (extra?: string) => {
       if (busy) return;
       const keys = parseKeys(keysRaw);
-      if (!problem.trim() && !imgProblem) {
-        notify('Nhập đề bài hoặc tải ảnh đề trước khi vẽ.', 'err');
+      const lic = getLicenseStatus();
+      if (lic.isExpired) {
+        notify('⛔ Ứng dụng đã hết hạn dùng thử. Vui lòng kích hoạt bản quyền PRO để tiếp tục.', 'err');
+        setIsLicenseOpen(true);
+        return;
+      }
+
+      if (!problem.trim() && !imgProblem && !imgSketch) {
+        notify('Vui lòng nhập đề bài hoặc tải ảnh lên.', 'err');
         return;
       }
       if (!keys.length) {
@@ -271,8 +297,11 @@ export default function App() {
       <Header
         keyCount={parseKeys(keysRaw).length}
         railHidden={railHidden}
+        refreshKey={licenseRefresh}
         onToggleRail={() => setRailHidden((v) => !v)}
         onOpenGuide={showGuide}
+        onOpenLicense={() => setIsLicenseOpen(true)}
+        onOpenAdminKeygen={() => setIsAdminOpen(true)}
       />
 
       <div className="main-content fade-in">
@@ -361,14 +390,29 @@ export default function App() {
 
         <footer className="credit-footer text-center text-muted pt-4 pb-2" style={{ fontSize: '.85rem' }}>
           <i className="fas fa-shapes text-primary me-1" />
-          <b>Math Visualizer</b> · Tác giả <b>Nguyễn Thiện</b> ·{' '}
+          <b>Math Visualizer 2.0</b> · Tác giả <b className="cursor-pointer text-dark text-decoration-underline" onClick={() => setIsAdminOpen(true)}>Nguyễn Thiện</b> ·{' '}
           <a href="https://zalo.me/0988250112" target="_blank" rel="noopener noreferrer" className="fw-bold text-decoration-none">
             Zalo 0988.250.112
           </a>
           <br />
-          Ứng dụng chạy hoàn toàn trên trình duyệt của bạn — không có máy chủ trung gian.
+          Ứng dụng chạy hoàn toàn trên trình duyệt của bạn — không có máy chủ trung gian. Bản quyền © 2026.
         </footer>
       </div>
+
+      {/* License Modal for Users */}
+      <LicenseModal
+        isOpen={isLicenseOpen}
+        onClose={() => setIsLicenseOpen(false)}
+        notify={notify}
+        onLicenseChanged={() => setLicenseRefresh((v) => v + 1)}
+      />
+
+      {/* Secret Admin Keygen Modal */}
+      <AdminKeygenModal
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        notify={notify}
+      />
     </>
   );
 }
