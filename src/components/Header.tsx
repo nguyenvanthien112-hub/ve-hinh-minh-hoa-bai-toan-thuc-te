@@ -19,23 +19,15 @@ export default function Header({ keyCount, railHidden, refreshKey, onToggleRail,
       <div className="container-fluid px-3 px-lg-4 d-flex flex-wrap gap-2 align-items-center">
         <div className="me-auto">
           <span 
-            className="navbar-brand mb-0 cursor-pointer" 
-            title="Nhấp đúp để mở công cụ Admin (Nguyễn Thiện)"
+            className="navbar-brand mb-0" 
             onDoubleClick={onOpenAdminKeygen}
           >
             <i className="fas fa-shapes me-1" />
             Math Visualizer 2.0
           </span>
           <div className="navbar-sub">
-            Minh hoạ Toán · Lý · Hoá · Sinh · Địa bằng SVG · Tác giả:{' '}
-            <b 
-              className="cursor-pointer text-white text-decoration-underline" 
-              onClick={onOpenAdminKeygen}
-              title="Click để mở công cụ Admin"
-            >
-              Nguyễn Thiện
-            </b>{' '}
-            · <i className="fas fa-comment-dots" />{' '}
+            Minh hoạ Toán · Lý · Hoá · Sinh · Địa bằng SVG · Tác giả: <b>Nguyễn Thiện</b> ·{' '}
+            <i className="fas fa-comment-dots" />{' '}
             <a href="https://zalo.me/0988250112" target="_blank" rel="noopener noreferrer">
               0988.250.112
             </a>
