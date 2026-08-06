@@ -111,6 +111,32 @@ export function scaleAxisElement(el: SVGElement, sx: number, sy: number) {
   el.setAttribute('transform', `translate(${center.x}, ${center.y}) scale(${sx}, ${sy}) translate(${-center.x}, ${-center.y}) ` + t);
 }
 
+export function rotateElement(el: SVGElement, angleDeg: number) {
+  const center = getElementCenter(el);
+  const t = el.getAttribute('transform') || '';
+  el.setAttribute('transform', `translate(${center.x}, ${center.y}) rotate(${angleDeg}) translate(${-center.x}, ${-center.y}) ` + t);
+}
+
+export function setStrokeWidth(el: SVGElement, width: number) {
+  el.setAttribute('stroke-width', String(width));
+  el.style.strokeWidth = `${width}px`;
+}
+
+export function setStrokeDasharray(el: SVGElement, styleType: 'solid' | 'dashed' | 'dotted' | 'dashdot') {
+  let val = 'none';
+  if (styleType === 'dashed') val = '8 4';
+  else if (styleType === 'dotted') val = '3 3';
+  else if (styleType === 'dashdot') val = '9 3 2 3';
+  
+  if (val === 'none') {
+    el.removeAttribute('stroke-dasharray');
+    el.style.strokeDasharray = 'none';
+  } else {
+    el.setAttribute('stroke-dasharray', val);
+    el.style.strokeDasharray = val;
+  }
+}
+
 export function duplicateElement(el: SVGElement): SVGElement | null {
   if (!el.parentNode) return null;
   const clone = el.cloneNode(true) as SVGElement;

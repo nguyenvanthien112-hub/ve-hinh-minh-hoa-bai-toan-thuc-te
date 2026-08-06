@@ -4,6 +4,9 @@ import {
   scaleElement, 
   scaleAxisElement, 
   duplicateElement, 
+  rotateElement,
+  setStrokeWidth,
+  setStrokeDasharray,
   getElementCenter,
   getAllSelectableElements 
 } from '../lib/svgEditor';
@@ -48,6 +51,8 @@ export default function ElementPropertiesPanel({
   const [fill, setFill] = useState('none');
   const [opacity, setOpacity] = useState('1');
   const [textValue, setTextValue] = useState('');
+  const [strokeWidthVal, setStrokeWidthVal] = useState<number>(2);
+  const [dashStyle, setDashStyle] = useState<'solid' | 'dashed' | 'dotted' | 'dashdot'>('solid');
 
   // Update elements list when svgContainer or selection changes
   useEffect(() => {
@@ -64,6 +69,15 @@ export default function ElementPropertiesPanel({
     setFill(selectedElement.getAttribute('fill') || selectedElement.style.fill || 'none');
     setOpacity(selectedElement.getAttribute('opacity') || selectedElement.style.opacity || '1');
     
+    const w = parseFloat(selectedElement.getAttribute('stroke-width') || selectedElement.style.strokeWidth || '2');
+    setStrokeWidthVal(isNaN(w) ? 2 : w);
+
+    const dash = selectedElement.getAttribute('stroke-dasharray') || selectedElement.style.strokeDasharray || '';
+    if (dash.includes('8') || dash.includes('4')) setDashStyle('dashed');
+    else if (dash.includes('3') || dash.includes('2')) setDashStyle('dotted');
+    else if (dash.includes('9')) setDashStyle('dashdot');
+    else setDashStyle('solid');
+
     if (selectedElement.tagName.toLowerCase() === 'text' || selectedElement.tagName.toLowerCase() === 'tspan') {
       setTextValue(selectedElement.textContent || '');
     }
@@ -162,6 +176,26 @@ export default function ElementPropertiesPanel({
     if (!selectedElement) return;
     setTextValue(val);
     selectedElement.textContent = val;
+    onChange();
+  };
+
+  const handleRotate = (angle: number) => {
+    if (!selectedElement) return;
+    rotateElement(selectedElement, angle);
+    onChange();
+  };
+
+  const handleWidthChange = (w: number) => {
+    if (!selectedElement) return;
+    setStrokeWidthVal(w);
+    setStrokeWidth(selectedElement, w);
+    onChange();
+  };
+
+  const handleDashChange = (style: 'solid' | 'dashed' | 'dotted' | 'dashdot') => {
+    if (!selectedElement) return;
+    setDashStyle(style);
+    setStrokeDasharray(selectedElement, style);
     onChange();
   };
 
@@ -388,6 +422,109 @@ export default function ElementPropertiesPanel({
                     {item.label}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Section: Xoay đối tượng */}
+            <div className="card p-3 bg-light border" style={{ borderRadius: 8 }}>
+              <span className="fw-bold text-dark mb-2" style={{ fontSize: '0.85rem' }}>
+                <i className="fas fa-rotate me-1 text-primary" /> Xoay đối tượng quanh tâm:
+              </span>
+              <div className="d-flex gap-2 flex-wrap">
+                <button className="btn btn-white border btn-sm flex-grow-1" onClick={() => handleRotate(-45)}>
+                  <i className="fas fa-rotate-left me-1" /> -45°
+                </button>
+                <button className="btn btn-white border btn-sm flex-grow-1" onClick={() => handleRotate(-15)}>
+                  <i className="fas fa-rotate-left me-1" /> -15°
+                </button>
+                <button className="btn btn-white border btn-sm flex-grow-1" onClick={() => handleRotate(-5)}>
+                  <i className="fas fa-rotate-left me-1" /> -5°
+                </button>
+                <button className="btn btn-white border btn-sm flex-grow-1" onClick={() => handleRotate(5)}>
+                  +5° <i className="fas fa-rotate-right ms-1" />
+                </button>
+                <button className="btn btn-white border btn-sm flex-grow-1" onClick={() => handleRotate(15)}>
+                  +15° <i className="fas fa-rotate-right ms-1" />
+                </button>
+                <button className="btn btn-white border btn-sm flex-grow-1" onClick={() => handleRotate(45)}>
+                  +45° <i className="fas fa-rotate-right ms-1" />
+                </button>
+                <button className="btn btn-white border btn-sm flex-grow-1" onClick={() => handleRotate(90)}>
+                  90° <i className="fas fa-rotate-right ms-1" />
+                </button>
+              </div>
+            </div>
+
+            {/* Section: Độ dày & Kiểu nét */}
+            <div className="card p-3 bg-light border" style={{ borderRadius: 8 }}>
+              <span className="fw-bold text-dark mb-2" style={{ fontSize: '0.85rem' }}>
+                <i className="fas fa-pen-ruler me-1 text-primary" /> Độ dày mỏng & Kiểu đường nét:
+              </span>
+
+              {/* Stroke width */}
+              <div className="mb-3">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <small className="text-muted" style={{ fontSize: '0.78rem' }}>Độ dày nét vẽ: <b>{strokeWidthVal}px</b></small>
+                </div>
+                <div className="d-flex gap-2 mb-2">
+                  {[1, 2, 3, 5, 8, 12].map(w => (
+                    <button 
+                      key={w} 
+                      className={`btn btn-sm ${strokeWidthVal === w ? 'btn-primary' : 'btn-white border'} flex-grow-1`}
+                      onClick={() => handleWidthChange(w)}
+                    >
+                      {w}px
+                    </button>
+                  ))}
+                </div>
+                <input 
+                  type="range" 
+                  className="form-range" 
+                  min="0.5" 
+                  max="20" 
+                  step="0.5" 
+                  value={strokeWidthVal} 
+                  onChange={(e) => handleWidthChange(parseFloat(e.target.value))} 
+                />
+              </div>
+
+              {/* Stroke Dasharray style */}
+              <div>
+                <small className="text-muted d-block mb-1" style={{ fontSize: '0.78rem' }}>Kiểu nét vẽ:</small>
+                <div className="row g-2">
+                  <div className="col-6 col-md-3">
+                    <button 
+                      className={`btn btn-sm w-100 ${dashStyle === 'solid' ? 'btn-primary' : 'btn-white border'}`} 
+                      onClick={() => handleDashChange('solid')}
+                    >
+                      Nét liền ──
+                    </button>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <button 
+                      className={`btn btn-sm w-100 ${dashStyle === 'dashed' ? 'btn-primary' : 'btn-white border'}`} 
+                      onClick={() => handleDashChange('dashed')}
+                    >
+                      Nét đứt ╌ ╌
+                    </button>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <button 
+                      className={`btn btn-sm w-100 ${dashStyle === 'dotted' ? 'btn-primary' : 'btn-white border'}`} 
+                      onClick={() => handleDashChange('dotted')}
+                    >
+                      Chấm đứt • •
+                    </button>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <button 
+                      className={`btn btn-sm w-100 ${dashStyle === 'dashdot' ? 'btn-primary' : 'btn-white border'}`} 
+                      onClick={() => handleDashChange('dashdot')}
+                    >
+                      Gạch chấm ╌ • ╌
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
