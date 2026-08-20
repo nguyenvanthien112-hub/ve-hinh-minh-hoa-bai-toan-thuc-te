@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Keygen - Math Visualizer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-top: 0;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 16px;
+      text-transform: uppercase;
+    }
+    .package-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .package-btn {
+      padding: 12px;
+      border: 1px solid #ccc;
+      background: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .package-btn.active {
+      background: #0d6efd;
+      color: white;
+      border-color: #0d6efd;
+    }
+    .generate-btn {
+      width: 100%;
+      padding: 14px;
+      background: #ffc107;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .generate-btn:hover {
+      background: #ffca2c;
+    }
+    .result {
+      margin-top: 25px;
+      padding: 15px;
+      background: #d1e7dd;
+      border: 1px solid #badbcc;
+      border-radius: 8px;
+      display: none;
+    }
+    .result h4 {
+      margin: 0 0 10px 0;
+      color: #0f5132;
+    }
+    .result input {
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f5132;
+      background: white;
+      border-color: #badbcc;
+      margin-bottom: 10px;
+    }
+    .copy-btn {
+      width: 100%;
+      padding: 12px;
+      background: #198754;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .copy-btn:hover {
+      background: #157347;
+    }
+    #login-screen, #keygen-screen {
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="login-screen">
+  <h2>Đăng nhập Admin</h2>
+  <div class="form-group">
+    <label>Mật khẩu Quản trị viên:</label>
+    <input type="password" id="admin-pass" placeholder="Nhập mật khẩu..." style="text-transform: none;">
+  </div>
+  <button class="generate-btn" onclick="checkLogin()">Đăng nhập</button>
+</div>
+
+<div class="card" id="keygen-screen" style="display: none;">
+  <h2>Tạo Mã Kích Hoạt</h2>
+  
+  <div class="form-group">
+    <label>1. Mã thiết bị của khách hàng:</label>
+    <input type="text" id="device-id" placeholder="Ví dụ: MV-8392-A71F">
+  </div>
+
+  <div class="form-group">
+    <label>2. Chọn gói thời hạn:</label>
+    <div class="package-grid">
+      <button class="package-btn" onclick="setPackage('1m')" id="btn-1m">1 Tháng</button>
+      <button class="package-btn active" onclick="setPackage('1y')" id="btn-1y">1 Năm</button>
+      <button class="package-btn" onclick="setPackage('2y')" id="btn-2y">2 Năm</button>
+      <button class="package-btn" onclick="setPackage('life')" id="btn-life">Vĩnh Viễn (PRO)</button>
+    </div>
+  </div>
+
+  <button class="generate-btn" onclick="generateKey()">Tạo Mã Kích Hoạt</button>
+
+  <div class="result" id="result-box">
+    <h4>Mã Kích Hoạt Đã Tạo:</h4>
+    <input type="text" id="generated-key" readonly>
+    <button class="copy-btn" onclick="copyKey()">Copy Gửi Cho Khách</button>
+  </div>
+</div>
+
+<script>
+  let currentPackage = '1y';
+
+  function checkLogin() {
+    const pass = document.getElementById('admin-pass').value;
+    if (pass === 'Thien12345@') {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('keygen-screen').style.display = 'block';
+    } else {
+      alert('Mật khẩu Admin không đúng!');
+    }
+  }
+
+  function setPackage(pkg) {
+    currentPackage = pkg;
+    document.querySelectorAll('.package-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('btn-' + pkg).classList.add('active');
+  }
+
+  function generateChecksum(deviceId, packageType) {
+    const salt = 'MATH_VISUALIZER_NGUYEN_THIEN_0988250112_SECRET_SALT_2026';
+    const str = `${deviceId}_${packageType}_${salt}`;
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash * 33) ^ str.charCodeAt(i);
+    }
+    return Math.abs(hash).toString(36).toUpperCase().padStart(6, '0').slice(0, 6);
+  }
+
+  function generateKey() {
+    let deviceId = document.getElementById('device-id').value.trim().toUpperCase();
+    if (!deviceId) {
+      alert('Vui lòng nhập Mã thiết bị của khách hàng.');
+      return;
+    }
+    if (!deviceId.startsWith('MV-')) {
+      alert('Mã thiết bị phải bắt đầu bằng MV- (ví dụ: MV-8392-A71F).');
+      return;
+    }
+
+    const checksum = generateChecksum(deviceId, currentPackage);
+    const typeCode = currentPackage.toUpperCase();
+    const key = `LIC-${typeCode}-${deviceId.replace('MV-', '')}-${checksum}`;
+    
+    document.getElementById('generated-key').value = key;
+    document.getElementById('result-box').style.display = 'block';
+  }
+
+  function copyKey() {
+    const keyInput = document.getElementById('generated-key');
+    keyInput.select();
+    keyInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(keyInput.value);
+    alert(`Đã copy mã: ${keyInput.value}\nHãy dán để gửi cho khách hàng qua Zalo.`);
+  }
+
+  // Handle Enter key in login
+  document.getElementById('admin-pass').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+      checkLogin();
+    }
+  });
+</script>
+
+</body>
+</html>

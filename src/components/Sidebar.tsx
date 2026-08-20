@@ -36,6 +36,7 @@ interface Props {
   busy: boolean;
   status: string;
   onRun: () => void;
+  onRunPrompt: () => void;
   onStop: () => void;
   history: HistoryItem[];
   historyQuery: string;
@@ -174,6 +175,10 @@ export default function Sidebar(p: Props) {
           <i className={'me-2 fas ' + (p.busy ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles')} />
           {p.busy ? 'Đang vẽ…' : 'Vẽ hình minh hoạ'}
           {!p.busy && <kbd>Ctrl ↵</kbd>}
+        </button>
+        <button className="btn btn-outline-primary btn-run w-100 mt-2" onClick={p.onRunPrompt} disabled={p.busy}>
+          <i className={'me-2 fas ' + (p.busy ? 'fa-spinner fa-spin' : 'fa-rectangle-list')} />
+          {p.busy ? 'Đang tạo…' : 'Tạo Prompt (4 Blocks)'}
         </button>
         {p.busy && (
           <button className="btn btn-outline-danger w-100 mt-2" onClick={p.onStop}>

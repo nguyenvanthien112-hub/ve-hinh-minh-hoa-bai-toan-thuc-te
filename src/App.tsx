@@ -11,6 +11,7 @@ import type { GeminiPart, HistoryItem, ImagePayload, StyleId, SubjectId, TabId }
 import { getLicenseStatus } from './lib/license';
 import LicenseModal from './components/LicenseModal';
 import AdminKeygenModal from './components/AdminKeygenModal';
+import { TIKZ_MASTER_SYSTEM_PROMPT } from './lib/prompt-tikz-master';
 
 const EMPTY_TITLE = 'Khung hiển thị hình minh hoạ';
 const EMPTY_TEXT =
@@ -60,6 +61,7 @@ export default function App() {
   const [svg, setSvg] = useState('');
   const [tikz, setTikz] = useState('');
   const [solution, setSolution] = useState('');
+  const [promptText, setPromptText] = useState('');
   const [title, setTitle] = useState('hinh-minh-hoa');
   const [tab, setTab] = useState<TabId>('draw');
   const [busy, setBusy] = useState(false);
@@ -233,6 +235,102 @@ export default function App() {
     [busy, keysRaw, problem, imgProblem, imgSketch, wantTikz, wantSolution, modelChoice, style, subject, pushHistory],
   );
 
+  /* ---------- Chạy tạo Prompt (4 Blocks) ---------- */
+  const runGeneratePrompt = useCallback(
+    async () => {
+      if (busy) return;
+      const keys = parseKeys(keysRaw);
+      const lic = getLicenseStatus();
+      if (lic.isExpired) {
+        notify('⛔ Ứng dụng đã hết hạn dùng thử. Vui lòng kích hoạt bản quyền PRO để tiếp tục.', 'err');
+        setIsLicenseOpen(true);
+        return;
+      }
+
+      if (!problem.trim() && !imgProblem && !imgSketch) {
+        notify('Vui lòng nhập đề bài hoặc tải ảnh lên để tạo prompt.', 'err');
+        return;
+      }
+      if (!keys.length) {
+        notify('Chưa có API key. Dán key ở khung đầu tiên.', 'err');
+        return;
+      }
+
+      const parts: GeminiPart[] = [
+        { text: 'ĐỀ BÀI (hoặc mô tả phác thảo):\n' + problem.trim() },
+      ];
+      if (imgProblem) {
+        parts.push({ text: 'Ảnh đề bài:' });
+        parts.push({ inline_data: { mime_type: imgProblem.mime, data: imgProblem.data } });
+      }
+      if (imgSketch) {
+        parts.push({ text: 'Ảnh phác thảo:' });
+        parts.push({ inline_data: { mime_type: imgSketch.mime, data: imgSketch.data } });
+      }
+
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setBusy(true);
+      setTab('prompt');
+      setPromptText('');
+      setEmptyTitle('Đang tạo Prompt…');
+      setEmptyText('AI đang phân tích và tạo 4 block Prompt.');
+      const startedAt = performance.now();
+      const heading = problem.trim() || '(đề bài từ ảnh)';
+
+      try {
+        const result = await generate({
+          keys,
+          modelChoice,
+          system: TIKZ_MASTER_SYSTEM_PROMPT,
+          parts,
+          signal: controller.signal,
+          startModelIndex: rotation.current.model,
+          startKeyIndex: rotation.current.key,
+          onStatus: setStatus,
+          onDelta: (full) => {
+            const now = Date.now();
+            if (now - lastPaint.current < 220) return;
+            lastPaint.current = now;
+            setPromptText(full);
+          },
+        });
+
+        rotation.current = { model: result.nextModelIndex, key: result.usedKeyIndex };
+        setPromptText(result.text);
+        setTitle(heading);
+        setStatus(`Xong sau ${((performance.now() - startedAt) / 1000).toFixed(1)}s bằng ${result.model}.`);
+        notify('Đã tạo xong Prompt TikZ.');
+        pushHistory({
+          id: Date.now(),
+          t: Date.now(),
+          title: heading.slice(0, 90),
+          problem: heading,
+          style,
+          subject,
+          svg: '',
+          tikz: '',
+          sol: '',
+          promptText: result.text,
+        });
+      } catch (err) {
+        const e = err as Error;
+        if (e.name === 'AbortError') {
+          setStatus('Đã dừng theo yêu cầu.');
+        } else {
+          setStatus('Lỗi: ' + e.message);
+          notify('Không tạo được Prompt: ' + e.message, 'err');
+          setEmptyTitle('Chưa tạo được Prompt');
+          setEmptyText(e.message);
+        }
+      } finally {
+        abortRef.current = null;
+        setBusy(false);
+      }
+    },
+    [busy, keysRaw, problem, imgProblem, imgSketch, modelChoice, style, subject, pushHistory],
+  );
+
   /* ---------- Phím tắt ---------- */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -259,6 +357,7 @@ export default function App() {
     setSvg(h.svg);
     setTikz(h.tikz);
     setSolution(h.sol);
+    setPromptText(h.promptText || '');
     setProblem(h.problem);
     if (h.subject) setSubject(h.subject);
     setTitle(h.problem);
@@ -337,6 +436,7 @@ export default function App() {
                 busy={busy}
                 status={status}
                 onRun={() => void run()}
+                onRunPrompt={() => void runGeneratePrompt()}
                 onStop={() => abortRef.current?.abort()}
                 history={history}
                 historyQuery={historyQuery}
@@ -356,6 +456,7 @@ export default function App() {
               svg={svg}
               tikz={tikz}
               solution={solution}
+              promptText={promptText}
               title={title}
               busy={busy}
               tab={tab}

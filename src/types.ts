@@ -32,9 +32,10 @@ export interface HistoryItem {
   svg: string;
   tikz: string;
   sol: string;
+  promptText?: string;
 }
 
-export type TabId = 'draw' | 'svg' | 'tikz' | 'sol';
+export type TabId = 'draw' | 'svg' | 'tikz' | 'sol' | 'prompt';
 
 export type GeminiPart =
   | { text: string }

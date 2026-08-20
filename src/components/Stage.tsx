@@ -12,6 +12,7 @@ interface Props {
   svg: string;
   tikz: string;
   solution: string;
+  promptText: string;
   title: string;
   busy: boolean;
   tab: TabId;
@@ -30,6 +31,7 @@ const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'svg', label: 'Mã SVG', icon: 'fas fa-code' },
   { id: 'tikz', label: 'LaTeX (TikZ)', icon: 'fas fa-square-root-variable' },
   { id: 'sol', label: 'Lời giải', icon: 'fas fa-lightbulb' },
+  { id: 'prompt', label: 'Prompt 4 Block', icon: 'fas fa-rectangle-list' },
 ];
 
 function OverlayHandles({ element, zoom, onHandleDown }: { element: SVGElement, zoom: number, onHandleDown: (e: React.PointerEvent, cx: number, cy: number) => void }) {
@@ -496,6 +498,21 @@ export default function Stage(p: Props) {
 
         <section className={'pane' + (p.tab === 'sol' ? ' on' : '')}>
           <div className="solution-pane" dangerouslySetInnerHTML={{ __html: solutionHtml }} />
+        </section>
+
+        <section className={'pane' + (p.tab === 'prompt' ? ' on' : '')}>
+          <div className="p-3 pb-0 d-flex align-items-center gap-2 flex-wrap">
+            <button className="btn btn-outline-primary btn-sm" onClick={() => void copyText(p.promptText, 'nội dung Prompt')}>
+              <i className="fas fa-copy me-1" />
+              Sao chép toàn bộ Prompt
+            </button>
+            <span className="text-muted" style={{ fontSize: '.78rem' }}>
+              Dán vào ChatGPT hoặc Claude để nhận ảnh/code TikZ.
+            </span>
+          </div>
+          <pre className="code-pane" style={{ whiteSpace: 'pre-wrap' }}>
+            {p.promptText || 'Chưa có dữ liệu Prompt.'}
+          </pre>
         </section>
       </div>
     </div>
