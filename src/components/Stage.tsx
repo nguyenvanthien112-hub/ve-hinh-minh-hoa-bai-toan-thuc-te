@@ -4,6 +4,7 @@ import ElementPropertiesPanel from './ElementPropertiesPanel';
 import { translateElement, scaleElement, findClosestElement, getAllSelectableElements } from '../lib/svgEditor';
 import { renderSolution } from '../lib/markdown';
 import { downloadBlob, slugify, svgToPdf, svgToPngBlob } from '../lib/exporter';
+import { exportSolutionToDocx } from '../lib/docxWordExporter';
 import { STORAGE_KEYS, store } from '../lib/storage';
 import type { Notify } from '../lib/ui';
 
@@ -497,6 +498,32 @@ export default function Stage(p: Props) {
         </section>
 
         <section className={'pane' + (p.tab === 'sol' ? ' on' : '')}>
+          {p.solution && (
+            <div className="p-3 pb-0 d-flex align-items-center gap-2 flex-wrap">
+              <button
+                className="btn btn-outline-primary btn-sm"
+                onClick={() => void copyText(p.solution, 'lời giải')}
+              >
+                <i className="fas fa-copy me-1" />
+                Sao chép lời giải
+              </button>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() =>
+                  void exportSolutionToDocx({
+                    title: p.title || 'Lời giải',
+                    content: p.solution,
+                    fileName: slugify(p.title || 'loi-giai'),
+                  }).then(() => p.notify('Đã tải file Word chứa công thức Equation chuẩn Office!'))
+                    .catch(() => p.notify('Không thể tạo file Word.', 'err'))
+                }
+                title="Tải file Word (.docx) có công thức Word Equation chuẩn Microsoft Office, mở bằng Word/LibreOffice"
+              >
+                <i className="fas fa-file-word me-1" />
+                Tải Word (Equation)
+              </button>
+            </div>
+          )}
           <div className="solution-pane" dangerouslySetInnerHTML={{ __html: solutionHtml }} />
         </section>
 

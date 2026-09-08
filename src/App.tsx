@@ -345,8 +345,8 @@ export default function App() {
         abortRef.current.abort();
         return;
       }
-      if (!typing && ['1', '2', '3', '4'].includes(e.key)) {
-        setTab((['draw', 'svg', 'tikz', 'sol'] as TabId[])[Number(e.key) - 1]);
+      if (!typing && ['1', '2', '3', '4', '5'].includes(e.key)) {
+        setTab((['draw', 'svg', 'tikz', 'sol', 'prompt'] as TabId[])[Number(e.key) - 1]);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -397,6 +397,8 @@ export default function App() {
         keyCount={parseKeys(keysRaw).length}
         railHidden={railHidden}
         refreshKey={licenseRefresh}
+        modelChoice={modelChoice}
+        setModelChoice={setModelChoice}
         onToggleRail={() => setRailHidden((v) => !v)}
         onOpenGuide={showGuide}
         onOpenLicense={() => setIsLicenseOpen(true)}
@@ -419,8 +421,6 @@ export default function App() {
                 setKeysRaw={setKeysRaw}
                 problem={problem}
                 setProblem={setProblem}
-                modelChoice={modelChoice}
-                setModelChoice={setModelChoice}
                 style={style}
                 setStyle={setStyle}
                 subject={subject}
@@ -491,7 +491,7 @@ export default function App() {
 
         <footer className="credit-footer text-center text-muted pt-4 pb-2" style={{ fontSize: '.85rem' }}>
           <i className="fas fa-shapes text-primary me-1" />
-          <b>Math Visualizer 2.0</b> · Tác giả <b className="cursor-pointer text-dark text-decoration-underline" onClick={() => setIsAdminOpen(true)}>Nguyễn Thiện</b> ·{' '}
+          <b>Vẽ Hình Minh Hoạ Toán Thực Tế 5.0</b> · Tác giả <b className="cursor-pointer text-dark text-decoration-underline" onClick={() => setIsAdminOpen(true)}>Nguyễn Thiện</b> ·{' '}
           <a href="https://zalo.me/0988250112" target="_blank" rel="noopener noreferrer" className="fw-bold text-decoration-none">
             Zalo 0988.250.112
           </a>

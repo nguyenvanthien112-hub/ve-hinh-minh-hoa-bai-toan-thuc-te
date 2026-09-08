@@ -8,9 +8,10 @@ interface Props {
   value: string;
   onChange: (v: string) => void;
   notify: Notify;
+  embedded?: boolean;  // khi true: hiển thị nội dung trực tiếp, không bọc Card
 }
 
-export default function ApiKeyPanel({ value, onChange, notify }: Props) {
+export default function ApiKeyPanel({ value, onChange, notify, embedded = false }: Props) {
   const [show, setShow] = useState(false);
   const [testing, setTesting] = useState(false);
   const count = parseKeys(value).length;
@@ -45,13 +46,12 @@ export default function ApiKeyPanel({ value, onChange, notify }: Props) {
     notify(result.join(' · '), result.some((r) => !r.includes('hoạt động')) ? 'err' : 'ok');
   };
 
-  return (
-    <Card
-      title="Gemini API key"
-      icon="fas fa-key"
-      defaultOpen={count === 0}
-      badge={<span className="badge bg-light text-dark">{count} key</span>}
-    >
+  const content = (
+    <>
+      <div className="sidebar-label mb-2">
+        <i className="fas fa-key me-1 text-primary" /> Gemini API Key
+        <span className="badge bg-light text-dark ms-2">{count} key</span>
+      </div>
       <div className="key-wrap">
         <textarea
           className={'form-control key-field' + (show ? ' reveal' : '')}
@@ -71,7 +71,7 @@ export default function ApiKeyPanel({ value, onChange, notify }: Props) {
         </button>
       </div>
 
-      <div className="d-flex flex-wrap gap-2 mt-3">
+      <div className="d-flex flex-wrap gap-2 mt-2">
         <button className="btn btn-primary btn-sm" onClick={save}>
           <i className="fas fa-floppy-disk me-1" />
           Lưu key
@@ -86,12 +86,25 @@ export default function ApiKeyPanel({ value, onChange, notify }: Props) {
         </button>
       </div>
 
-      <p className="text-muted mt-3 mb-0" style={{ fontSize: '.78rem' }}>
+      <p className="text-muted mt-2 mb-0" style={{ fontSize: '.78rem' }}>
         Key lưu trong <b>localStorage</b> trên máy bạn, không gửi đi đâu ngoài Google.{' '}
         <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">
           Lấy key miễn phí tại Google AI Studio <i className="fas fa-arrow-up-right-from-square" />
         </a>
       </p>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <Card
+      title="Gemini API key"
+      icon="fas fa-key"
+      defaultOpen={count === 0}
+      badge={<span className="badge bg-light text-dark">{count} key</span>}
+    >
+      {content}
     </Card>
   );
 }

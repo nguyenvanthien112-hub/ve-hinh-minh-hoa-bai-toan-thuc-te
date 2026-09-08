@@ -70,27 +70,57 @@ export async function pickFromLibrary(): Promise<{ problem: string; subject: Sub
 
 export function showGuide(): void {
   void Swal.fire({
-    title: '<i class="fas fa-circle-info text-primary"></i> Hướng dẫn nhanh',
-    width: 780,
+    title: '<i class="fas fa-circle-info text-primary me-2"></i> Hướng dẫn sử dụng — Phiên bản 5.0',
+    width: 820,
     showCloseButton: true,
-    confirmButtonText: 'Đã hiểu',
+    confirmButtonText: 'Đã hiểu & Bắt đầu',
     confirmButtonColor: '#0d9488',
     html: `
-      <div style="text-align:left">
-        <ol style="padding-left:20px;line-height:1.85">
-          <li><b>Lấy API key</b> miễn phí tại
-            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>,
-            dán vào ô Gemini API key rồi bấm <b>Lưu key</b>. Dán nhiều key, mỗi key một dòng, app tự đổi key khi một key bị giới hạn.</li>
-          <li><b>Nhập đề bài</b> bằng cách gõ, dán ảnh (Ctrl+V) hoặc kéo thả ảnh chụp đề.</li>
-          <li><b>Ảnh phác thảo</b> là tuỳ chọn: chụp bản vẽ tay để AI vẽ lại đúng bố cục mong muốn.</li>
-          <li><b>Chọn môn</b> (Toán, Lý, Hoá, Sinh, Địa) để AI dùng đúng ký hiệu chuyên ngành, hoặc để <b>Tự nhận diện</b>.</li>
-          <li><b>Chọn phong cách</b>: SGK cho bài giảng, Đen trắng cho đề in, Bảng phấn cho slide.</li>
-          <li>Bấm <b>Vẽ hình minh hoạ</b> hoặc <b>Ctrl + Enter</b>. Hình hiện dần theo thời gian thực.</li>
-          <li><b>Xuất kết quả</b>: PNG 3×, SVG, PDF khổ A4, copy ảnh dán thẳng vào Word / PowerPoint / Zalo, hoặc lấy mã TikZ.</li>
-          <li>Hình chưa ưng? Bấm <b>Sửa lại hình</b> để AI tự rà soát và vẽ lại.</li>
-        </ol>
-        <p class="mb-1"><b>Phím tắt:</b> Ctrl+Enter vẽ · Ctrl+S tải SVG · Ctrl+P tải PNG · phím 1–4 chuyển tab · Esc dừng.</p>
-        <p class="text-muted mb-0" style="font-size:.85rem">Mọi dữ liệu nằm trên máy bạn. Hỗ trợ: Zalo <b>0988.250.112</b> — Nguyễn Thiện.</p>
+      <div style="text-align:left; font-size: 0.92rem; line-height: 1.7;">
+        <div class="mb-3 p-2 bg-light rounded-3 border">
+          <b class="text-primary"><i class="fas fa-rocket me-1"></i> Quy trình vẽ nhanh:</b>
+          <ol class="mb-0 ps-3 mt-1" style="line-height:1.75">
+            <li><b>API Key (Cài đặt nâng cao):</b> Nhập key miễn phí từ <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>. Dán nhiều key (mỗi dòng 1 key) để tự động xoay vòng.</li>
+            <li><b>Nhập đề bài:</b> Gõ nội dung đề, hoặc dán ảnh (Ctrl+V) / kéo thả ảnh đề bài vào ô chọn ảnh.</li>
+            <li><b>Ảnh phác thảo (tuỳ chọn):</b> Chụp ảnh vẽ tay để AI định vị bố cục chính xác nhất.</li>
+            <li><b>Chọn môn & Model:</b> Chọn đúng bộ môn (Toán, Lý, Hoá, Sinh, Địa) và Model AI trên thanh Header.</li>
+            <li><b>Bấm thực hiện:</b>
+              <ul class="ps-3 mb-1">
+                <li><b>Vẽ hình minh hoạ:</b> AI trực tiếp tạo hình vẽ SVG chất lượng cao theo thời gian thực.</li>
+                <li><b>Tạo Prompt (4 Blocks):</b> AI sinh bộ 4 câu lệnh chuyên sâu để bạn dán vào ChatGPT hoặc Claude.</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-md-6">
+            <div class="p-2 border rounded-3 h-100 bg-light">
+              <b class="text-success"><i class="fas fa-wand-magic-sparkles me-1"></i> Công cụ vẽ & Xuất file</b>
+              <ul class="ps-3 mb-0 mt-1" style="font-size:0.85rem">
+                <li><b>Chỉnh sửa trực tiếp:</b> Bấm <i>"Chỉnh sửa"</i> để click chọn, kéo dời hoặc đổi kích thước từng nét vẽ.</li>
+                <li><b>Xuất đa định dạng:</b> Tải ảnh PNG chất lượng cao, file vector SVG hoặc tài liệu PDF A4.</li>
+                <li><b>Copy nhanh:</b> Bấm <i>"Copy ảnh"</i> để dán trực tiếp vào Word, PowerPoint hoặc Zalo.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-2 border rounded-3 h-100 bg-light">
+              <b class="text-warning text-dark"><i class="fas fa-keyboard me-1"></i> Phím tắt tiện lợi</b>
+              <ul class="ps-3 mb-0 mt-1" style="font-size:0.85rem">
+                <li><code>Ctrl + Enter</code>: Chạy vẽ hình ngay lập tức</li>
+                <li><code>Ctrl + S</code> / <code>Ctrl + P</code>: Tải nhanh SVG / PNG</li>
+                <li><code>Phím 1 – 5</code>: Chuyển đổi giữa 5 tab kết quả</li>
+                <li><code>Esc</code>: Dừng tiến trình AI đang vẽ</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-2 border-top text-muted" style="font-size:0.82rem">
+          <span><i class="fas fa-shield-halved me-1 text-success"></i> Dữ liệu & API Key lưu an toàn tại trình duyệt máy bạn.</span>
+          <span>Hỗ trợ kỹ thuật: Zalo <b>0988.250.112</b> (Nguyễn Thiện)</span>
+        </div>
       </div>`,
   });
 }
