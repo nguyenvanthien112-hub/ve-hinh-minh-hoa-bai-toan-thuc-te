@@ -2,7 +2,12 @@ import type { GeminiPart, StyleId, SubjectId } from '../types';
 import { STYLES } from '../data/styles';
 import { SUBJECTS } from '../data/subjects';
 
-export const MODELS = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.6-flash'] as const;
+export const MODELS = [
+  'gemini-3.8-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash-lite',
+  'gemini-3.5-flash',
+] as const;
 export type ModelChoice = 'auto' | (typeof MODELS)[number];
 
 const API = 'https://generativelanguage.googleapis.com/v1beta';
@@ -92,14 +97,18 @@ export async function generate(args: GenerateArgs): Promise<GenerateResult> {
   const models: string[] =
     modelChoice === 'auto'
       ? MODELS.map((_, i) => MODELS[(args.startModelIndex + i) % MODELS.length])
-      : [modelChoice];
+      : [modelChoice, ...MODELS.filter((m) => m !== modelChoice)];
 
   let lastError = 'Không rõ lỗi';
 
   for (const model of models) {
+    if (modelChoice !== 'auto' && model !== modelChoice) {
+      onStatus(`Model ${modelChoice} gặp sự cố, tự động chuyển sang model dự phòng ${model}…`);
+    }
+
     for (let k = 0; k < keys.length; k++) {
       const keyIndex = (args.startKeyIndex + k) % keys.length;
-      const key = keys[keyIndex];
+      const key = keys[keyIndex].trim();
       onStatus(`Đang gọi ${model} · key #${keyIndex + 1}…`);
 
       try {
@@ -120,7 +129,10 @@ export async function generate(args: GenerateArgs): Promise<GenerateResult> {
             {
               method: 'POST',
               signal,
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'x-goog-api-key': key,
+              },
               body: JSON.stringify(body),
             },
           );
@@ -156,6 +168,10 @@ export async function generate(args: GenerateArgs): Promise<GenerateResult> {
         lastError = `${model}: ${(err as Error).message}`;
       }
     }
+  }
+
+  if (lastError.toLowerCase().includes('high demand') || lastError.includes('503')) {
+    lastError = `Máy chủ Google đang quá tải tạm thời (Spikes in demand). Vui lòng thử lại sau 1-2 phút hoặc thêm key mới.`;
   }
   throw new Error(lastError);
 }
@@ -206,8 +222,11 @@ async function readStream(
 export async function testKeys(keys: string[]): Promise<string[]> {
   const out: string[] = [];
   for (let i = 0; i < keys.length; i++) {
+    const k = keys[i].trim();
     try {
-      const r = await fetch(`${API}/models?key=${encodeURIComponent(keys[i])}`);
+      const r = await fetch(`${API}/models?key=${encodeURIComponent(k)}`, {
+        headers: { 'x-goog-api-key': k },
+      });
       out.push(`Key ${i + 1}: ${r.ok ? 'hoạt động' : 'lỗi ' + r.status}`);
     } catch {
       out.push(`Key ${i + 1}: không kết nối được`);

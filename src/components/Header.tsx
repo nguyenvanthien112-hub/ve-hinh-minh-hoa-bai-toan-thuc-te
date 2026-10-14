@@ -15,10 +15,11 @@ interface Props {
 }
 
 const MODEL_SHORT: Record<string, string> = {
-  auto: 'Tự động (3 model)',
-  'gemini-3.5-flash': 'Flash 3.5',
-  'gemini-3.5-flash-lite': 'Flash Lite',
+  auto: 'Tự động (Tất cả model)',
+  'gemini-3.8-flash': 'Flash 3.8 (Mới nhất)',
   'gemini-3.6-flash': 'Flash 3.6',
+  'gemini-3.5-flash-lite': 'Flash Lite',
+  'gemini-3.5-flash': 'Flash 3.5',
 };
 
 export default function Header({ keyCount, railHidden, refreshKey, modelChoice, setModelChoice, onToggleRail, onOpenGuide, onOpenLicense, onOpenAdminKeygen }: Props) {
